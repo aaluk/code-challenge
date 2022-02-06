@@ -1,12 +1,15 @@
 import Head from 'next/head';
-import { FormEvent, useState } from 'react';
+import { FormEvent, ChangeEvent, useState } from 'react';
 import styles from 'src/styles/create_account.module.scss';
+import wealthlogo from '../assets/logo.png'
+import Image from 'next/image';
 
 export default function CreateAccount() {
   const [username, setUsername] = useState('');
-  const [userError, setUserError] = useState(null);
+  const [userError, setUserError] = useState<string>(null);
   const [password, setPassword] = useState('');
-  const [passError, setPassError] = useState(null);
+  const [passError, setPassError] = useState<string>(null);
+  const [success, setSuccess] = useState(false);
 
   async function handleSubmit(evt: FormEvent) {
     evt.preventDefault();
@@ -15,17 +18,19 @@ export default function CreateAccount() {
       body: JSON.stringify({username, password}),
     });
     let data = await response.json();
-    console.log(data)
     if (data.result === false) {
       setUserError(data.errors.username || null);
       setPassError(data.errors.password || null);
     } else {
       setUserError(null);
       setPassError(null);
+      setUsername('');
+      setPassword('');
+      setSuccess(true);
     }
   }
 
-  function changeHandler (evt) { //TYPE SCRIPT FOR INPUT?
+  function changeHandler (evt: ChangeEvent<HTMLInputElement>) {
     if (evt.target.name === 'username') {
       setUsername(evt.target.value);
     } else {
@@ -37,37 +42,47 @@ export default function CreateAccount() {
     <>
       <Head>
         <title>Create Account</title>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;900&display=swap" rel="stylesheet"></link>
       </Head>
       <article className={styles.article}>
         <form className={styles.form} onSubmit={handleSubmit}>
-          <h1>Create New Account</h1>
-          <div>
+          <div className={styles.header}>
+            <Image
+              src={wealthlogo}
+              width={50}
+              height={50}/>
+            <h1>Create New Account</h1>
+          </div>
+          <div className={styles.inputContainer}>
             <label
               className={styles.label}
-              htmlFor="username">Username:</label>
+              htmlFor="username">Username</label>
             <input
               className={styles.input}
               onChange={changeHandler}
               type="text"
               id="username"
-              name="username">
+              name="username"
+              value={username}>
             </input>
-            {userError ? <div className={styles.error}>{userError}</div> : null}
+            {userError ? <p className={styles.error}>{userError}</p> : null}
           </div>
-          <div>
+          <div className={styles.inputContainer}>
             <label
               className={styles.label}
-              htmlFor="password">Password:</label>
+              htmlFor="password">Password</label>
             <input
               className={styles.input}
               onChange={changeHandler}
               type="password"
               id="password"
-              name="password">
+              name="password"
+              value={password}>
             </input>
-            {passError ? <div className={styles.error}>{passError}</div> : null}
+            {passError ? <p className={styles.error}>{passError}</p> : null}
           </div>
-          <button>Create Account</button>
+          <button className={styles.button}>Create Account</button>
+          {success ? <p className={styles.success}>Account Created Successfully</p> : null}
         </form>
       </article>
     </>
