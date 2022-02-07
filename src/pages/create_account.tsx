@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { FormEvent, ChangeEvent, useState } from 'react';
 import styles from 'src/styles/create_account.module.scss';
-import wealthlogo from '../assets/logo.png'
+// import wealthlogo from '../assets/logo.png';
 import Image from 'next/image';
 
 export default function CreateAccount() {
@@ -21,6 +21,7 @@ export default function CreateAccount() {
     if (data.result === false) {
       setUserError(data.errors.username || null);
       setPassError(data.errors.password || null);
+      setPassword('');
     } else {
       setUserError(null);
       setPassError(null);
@@ -47,10 +48,10 @@ export default function CreateAccount() {
       <article className={styles.article}>
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.header}>
-            <Image
+            {/* <Image
               src={wealthlogo}
               width={50}
-              height={50}/>
+              height={50}/> */}
             <h1>Create New Account</h1>
           </div>
           <div className={styles.inputContainer}>

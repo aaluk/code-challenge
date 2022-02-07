@@ -16,8 +16,8 @@ export default async function createNewAccount(req: NextApiRequest, res: NextApi
     username: req.body.username,
     password: req.body.password,
   }
-  let validUsername = validateUsername(newAccount.username);
-  let validPassword = await validatePassword(newAccount.password);
+  let validUsername = newAccount.username.length > 0 ? validateUsername(newAccount.username) : 'Username must be at least 10 characters';
+  let validPassword = newAccount.password.length > 0 ? await validatePassword(newAccount.password) : 'Password must be at least 20 characters';
 
   if (!validUsername && !validPassword) {
     let response : BooleanResult = {
