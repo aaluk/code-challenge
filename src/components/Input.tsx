@@ -12,15 +12,13 @@ interface InputProps {
 
 export default function Input(props: InputProps) {
   const { label, name, type, validate, errorMessage } = props;
-
   const formContext = useContext(FormContext);
   const { form, handleChange } = formContext;
-
   const [error, setError] = useState<string>(null);
 
-  const changeHandler = (e:ChangeEvent<HTMLInputElement>) => {
+  const changeHandler = async(e:ChangeEvent<HTMLInputElement>) => {
     handleChange(e);
-    setError(validate(e.target.value));
+    setError(await validate(e.target.value));
   }
 
   return (

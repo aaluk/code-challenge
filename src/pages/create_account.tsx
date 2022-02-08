@@ -1,43 +1,31 @@
 import Head from 'next/head';
-import { useContext, FormEvent, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import styles from 'src/styles/create_account.module.scss';
 import wealthlogo from '../assets/logo.png';
 import Image from 'next/image';
-import Form, { FormContext } from '../components/Form';
+import Form from '../components/Form';
 import Input from '../components/Input';
 import validateUsername from '../utils/usernameValid';
 import validatePassword from '../utils/passwordValid';
 
 export default function CreateAccount() {
-  const { form } = useContext(FormContext);
-
-  const [breached, setBreached] = useState<string>(null)
-
+  const [submitMessage, setMessage] = useState<string>(null)
   async function onSubmit (e: FormEvent, form: any) {
     e.preventDefault();
-    console.log(form);
     try {
-      let breached = await (fetch('/api/password_exposed', {
+      const response = await fetch('/api/create_new_account', {
         method: 'POST',
-        body: JSON.stringify({password: form.password})
-      }))
-      let error = await breached.json();
-      console.log(error);
-      if (error.result) {
-        console.log('this is here')
-        setBreached('This password has been hacked elsewhere, choose a different one.')
+        body: JSON.stringify(form)
+      })
+      const result = await response.json();
+      if (result.result) {
+        setMessage('Account Created Successfully')
       } else {
-        const response = await fetch('/api/create_new_account', {
-          method: 'POST',
-          body: JSON.stringify(form)
-        })
-        const result = await response.json();
-        console.log(result);
+        setMessage('Account Creation Failed. Please try again.')
       }
     } catch (e) {
       throw (e);
     }
-
   }
   return (
     <>
@@ -60,7 +48,7 @@ export default function CreateAccount() {
               password: ''
             }}
             onSubmit={onSubmit}
-            successMessage="Account Created Successfully">
+            submitMessage={submitMessage}>
               <Input
               label="Username"
               name="username"
@@ -72,7 +60,6 @@ export default function CreateAccount() {
               name="password"
               type="password"
               validate={validatePassword}
-              errorMessage={breached}
               />
           </Form>
         </div>

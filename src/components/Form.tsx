@@ -3,10 +3,10 @@ import styles from 'src/styles/create_account.module.scss';
 
 interface FormSettings {
   children: ReactNode;
-  successMessage: string;
   onSubmit(e: FormEvent, form:any): void;
   formInitialValues: any;
   buttonText?: string;
+  submitMessage?: string;
 }
 export const FormContext = createContext({
   form: {},
@@ -18,7 +18,7 @@ const Form = (props: FormSettings) => {
   const [form, setForm] = useState(formInitialValues);
   const [success, setSuccess] = useState(false);
 
-  function handleChange (e) {
+  function handleChange (e: ChangeEvent<HTMLInputElement>) {
     setForm({
       ...form,
       [e.target.name]: e.target.value
@@ -31,8 +31,8 @@ const Form = (props: FormSettings) => {
         {children}
       </FormContext.Provider>
       <button className={styles.button}>Create Account</button>
-      {success ?
-        <p className={styles.success}>{props.successMessage || 'Submitted Successfully'}</p>
+      {props.submitMessage ?
+        <p className={styles.success}>{props.submitMessage}</p>
         : null}
     </form>
   )
