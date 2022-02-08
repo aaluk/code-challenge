@@ -1,34 +1,42 @@
-import { useState, ChangeEvent } from 'react';
+import { useContext, ChangeEvent, useState } from 'react';
+import { FormContext } from './Form';
 import styles from 'src/styles/create_account.module.scss';
 
-interface InputSettings {
-  inputName: string;
-  inputIdName: string;
-  inputType: string;
-  changeHandler: Function;
+interface InputProps {
+  label: string;
+  name: string;
+  type: string;
+  validate?: Function;
   errorMessage?: string;
-  inputState: string;
-  inputUpdateState: Function;
 }
 
-export default function Input(props: InputSettings) {
-  function inputChangeHandler (evt: ChangeEvent<HTMLInputElement>) {
-    props.changeHandler(evt);
+export default function Input(props: InputProps) {
+  const { label, name, type, validate, errorMessage } = props;
+
+  const formContext = useContext(FormContext);
+  const { form, handleChange } = formContext;
+
+  const [error, setError] = useState<string>(null);
+
+  const changeHandler = (e:ChangeEvent<HTMLInputElement>) => {
+    handleChange(e);
+    setError(validate(e.target.value));
   }
+
   return (
     <div className={styles.inputContainer}>
       <label
         className={styles.label}
-        htmlFor={props.inputIdName}>{props.inputName}</label>
+        htmlFor={name}>{label}</label>
       <input
         className={styles.input}
-        onChange={inputChangeHandler}
-        type={props.inputType}
-        id={props.inputIdName}
-        name={props.inputIdName}
-        value={props.inputState}>
+        onChange={changeHandler}
+        type={type}
+        id={name}
+        name={name}
+        value={form[name]}>
       </input>
-      {props.errorMessage ? <p className={styles.error}>{props.errorMessage}</p> : null}
+      {errorMessage || error ? <p className={styles.error}>{error}</p> : null}
     </div>
   )
 }

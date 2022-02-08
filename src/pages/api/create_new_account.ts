@@ -17,7 +17,7 @@ export default async function createNewAccount(req: NextApiRequest, res: NextApi
     password: req.body.password,
   }
   let validUsername = newAccount.username.length > 0 ? validateUsername(newAccount.username) : 'Username must be at least 10 characters';
-  let validPassword = newAccount.password.length > 0 ? await validatePassword(newAccount.password) : 'Password must be at least 20 characters';
+  let validPassword = newAccount.password.length > 0 ? validatePassword(newAccount.password) : 'Password must be at least 20 characters';
 
   if (!validUsername && !validPassword) {
     let response : BooleanResult = {
@@ -42,11 +42,11 @@ function validateUsername(username: string) {
   else return;
 }
 
-async function validatePassword(password: string) {
-  let isBreached = await breachedPassword(password);
-  if (isBreached.result === true) {
-    return 'This password has been hacked elsewhere, choose a different one.'
-  }
+function validatePassword(password: string) {
+  // let isBreached = await breachedPassword(password);
+  // if (isBreached.result === true) {
+  //   return 'This password has been hacked elsewhere, choose a different one.'
+  // }
   var symbol = new RegExp("^(?=.*[!@#$%^&*])")
   var number = new RegExp("^(?=.*[0-9])");
   var letter = new RegExp("^(?=.*[a-z])|(?=.*[A-Z])");
@@ -58,11 +58,11 @@ async function validatePassword(password: string) {
   else return;
 }
 
-async function breachedPassword(password: string) {
-  const response = await fetch('http:localhost:3000/api/password_exposed', {
-    method: 'POST',
-    body: JSON.stringify({password})
-  })
-  let data = await response.json();
-  return data;
-}
+// async function breachedPassword(password: string) {
+//   const response = await fetch('http:localhost:3000/api/password_exposed', {
+//     method: 'POST',
+//     body: JSON.stringify({password})
+//   })
+//   let data = await response.json();
+//   return data;
+// }
