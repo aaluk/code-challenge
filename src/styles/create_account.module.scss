@@ -73,10 +73,17 @@
   background-color: rgb(96, 96, 190);
 }
 
-.success {
+.success, .fail {
   font-size: 12px;
   text-align: center;
   margin: 0;
   margin-top: 7px;
-  color: rgb(69,69,180)
+}
+
+.success {
+  color: rgb(69,69,180);
+}
+
+.fail {
+  color: red;
 }

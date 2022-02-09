@@ -1,17 +1,21 @@
 import Head from 'next/head';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useContext } from 'react';
 import styles from 'src/styles/create_account.module.scss';
 import wealthlogo from '../assets/logo.png';
 import Image from 'next/image';
-import Form from '../components/Form';
+import Form, { FormContext, SubmitResult } from '../components/Form';
 import Input from '../components/Input';
 import validateUsername from '../utils/usernameValid';
 import validatePassword from '../utils/passwordValid';
 
+
 export default function CreateAccount() {
-  const [submitMessage, setMessage] = useState<string>(null)
-  async function onSubmit (e: FormEvent, form: any) {
-    e.preventDefault();
+  const { form } = useContext(FormContext);
+  const [submitMessage, setMessage] = useState<SubmitResult>({
+    message: '',
+    success: null,
+  })
+  async function onSubmit (form: any) {
     try {
       const response = await fetch('/api/create_new_account', {
         method: 'POST',
@@ -19,9 +23,15 @@ export default function CreateAccount() {
       })
       const result = await response.json();
       if (result.result) {
-        setMessage('Account Created Successfully')
+        setMessage({
+          message:'Account Created Successfully',
+          success: true
+        })
       } else {
-        setMessage('Account Creation Failed. Please try again.')
+        setMessage({
+          message:'Submitted invalid username and/or password. Please try again.',
+          success: false
+        })
       }
     } catch (e) {
       throw (e);
@@ -40,7 +50,7 @@ export default function CreateAccount() {
                 src={wealthlogo}
                 width={50}
                 height={50}/>
-            <h1>Account Creation</h1>
+            <h1>Create New Account</h1>
           </div>
           <Form
             formInitialValues={{
@@ -48,7 +58,7 @@ export default function CreateAccount() {
               password: ''
             }}
             onSubmit={onSubmit}
-            submitMessage={submitMessage}>
+            submitResult={submitMessage}>
               <Input
               label="Username"
               name="username"

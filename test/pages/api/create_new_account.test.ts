@@ -130,24 +130,6 @@ describe('/api/create_new_account', () => {
     });
   });
 
-  test('when inputting cracked password, return false with error message', async () => {
-    const { req, res } = mockRequest({
-      method: 'POST',
-      body: {
-        username: 'abcdfdsafdf',
-        password: 'weakpass'
-      },
-    });
-    fetchMock.mockResponseOnce(JSON.stringify({result: true}));
-    await createNewAccount(req, res);
-    expect(res._getStatusCode()).toBe(200);
-    expect(res._getJSONData()).toEqual({
-      result: false,
-      errors: {
-        password: 'This password has been hacked elsewhere, choose a different one.'
-      },
-    });
-  });
 
   test('Return true', async () => {
     const { req, res } = mockRequest({

@@ -1,12 +1,13 @@
 import { FormEvent, ChangeEvent, useState, createContext, ReactNode } from 'react';
 import styles from 'src/styles/create_account.module.scss';
-
+export type FormValues = Record <string, string>;
+export interface SubmitResult {success: boolean|null, message: string};
 interface FormSettings {
   children: ReactNode;
-  onSubmit(e: FormEvent, form:any): void;
-  formInitialValues: any;
+  onSubmit(form: FormValues): void;
+  formInitialValues: FormValues;
   buttonText?: string;
-  submitMessage?: string;
+  submitResult?: SubmitResult;
 }
 export const FormContext = createContext({
   form: {},
@@ -16,7 +17,6 @@ export const FormContext = createContext({
 const Form = (props: FormSettings) => {
   const {children, formInitialValues, onSubmit} = props;
   const [form, setForm] = useState(formInitialValues);
-  const [success, setSuccess] = useState(false);
 
   function handleChange (e: ChangeEvent<HTMLInputElement>) {
     setForm({
@@ -25,14 +25,19 @@ const Form = (props: FormSettings) => {
     })
   }
 
+  function handleSubmit (e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    onSubmit(form);
+  }
+
   return (
-    <form onSubmit={e => onSubmit(e, form)}>
+    <form onSubmit={handleSubmit}>
       <FormContext.Provider value={{ form, handleChange }}>
         {children}
       </FormContext.Provider>
       <button className={styles.button}>Create Account</button>
-      {props.submitMessage ?
-        <p className={styles.success}>{props.submitMessage}</p>
+      {props.submitResult ?
+        <p className={props.submitResult.success ? styles.success : styles.fail}>{props.submitResult.message}</p>
         : null}
     </form>
   )
