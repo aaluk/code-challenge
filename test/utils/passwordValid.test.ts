@@ -1,6 +1,5 @@
 import { expect } from '@jest/globals';
 import fetchMock from 'jest-fetch-mock';
-import { mockRequest } from 'test/utils';
 import validatePassword from '../../src/utils/passwordValid';
 
 describe('Validate Password', () => {
@@ -12,84 +11,21 @@ describe('Validate Password', () => {
     fetchMock.resetMocks();
   });
 
-  test('password validation works', () => {
-    expect(validatePassword('short', false)).toEqual('Password must be at least 20 characters');
-    expect(validatePassword('longpasswordlongpasswordlongpasswordlongpasswordlongpassword', false)).toEqual('Password must be at most 50 characters');
-    expect(validatePassword('longpasswordlongpassword', false)).toEqual('Password must be at most 50 characters');
+  test('password validation works', async () => {
+    expect(await validatePassword('short', false)).toEqual('Password must be at least 20 characters');
+
+    expect(await validatePassword('longpasswordlongpasswordlongpasswordlongpasswordlongpassword', false)).toEqual('Password must be at most 50 characters');
+
+    expect(await validatePassword('longpasswordlongpassword', false)).toEqual('Password must contain at least 1 number');
+
+    expect(await validatePassword('longpasswordlongpassword1', false)).toEqual('Password must contain at least 1 symbol');
+
+    expect(await validatePassword('123456789012345678901', false)).toEqual('Password must contain at least 1 letter');
+
+    fetchMock.mockResponseOnce(JSON.stringify({result: true}));
+    expect(await validatePassword('weakpass', true)).toEqual('This password has been hacked elsewhere, choose a different one.');
+
+    fetchMock.mockResponseOnce(JSON.stringify({result: false}));
+    expect(await validatePassword('longpasswordlongpassword1!', true)).toEqual(undefined);
   });
-
-
-  // test('when inputting username and password too long, return false with error message', async () => {
-  //   const { req, res } = mockRequest({
-  //     method: 'POST',
-  //     body: {
-  //       username: 'passwordpasswordpasswordpasswordpasswordpasswordpassword',
-  //       password: 'passwordpasswordpasswordpasswordpasswordpasswordpassword'
-  //     },
-  //   });
-  //   fetchMock.mockResponseOnce(JSON.stringify({result: false}));
-  //   await createNewAccount(req, res);
-  //   expect(res._getStatusCode()).toBe(200);
-  //   expect(res._getJSONData()).toEqual({
-  //     result: false,
-  //     errors: {
-  //       username: 'Username must be at most 50 characters',
-  //       password: 'Password must be at most 50 characters'
-  //     },
-  //   });
-  // });
-
-  // test('when inputting password without number, return false with error message', async () => {
-  //   const { req, res } = mockRequest({
-  //     method: 'POST',
-  //     body: {
-  //       username: 'abcdfdsafdf',
-  //       password: 'passwordpasswordpassword'
-  //     },
-  //   });
-  //   fetchMock.mockResponseOnce(JSON.stringify({result: false}));
-  //   await createNewAccount(req, res);
-  //   expect(res._getStatusCode()).toBe(200);
-  //   expect(res._getJSONData()).toEqual({
-  //     result: false,
-  //     errors: {
-  //       password: 'Password must contain at least 1 number'
-  //     },
-  //   });
-  // });
-
-  // test('when inputting password without symbol, return false with error message', async () => {
-  //   const { req, res } = mockRequest({
-  //     method: 'POST',
-  //     body: {
-  //       username: 'abcdfdsafdf',
-  //       password: 'passwordpasswordpassword1'
-  //     },
-  //   });
-  //   fetchMock.mockResponseOnce(JSON.stringify({result: false}));
-  //   await createNewAccount(req, res);
-  //   expect(res._getStatusCode()).toBe(200);
-  //   expect(res._getJSONData()).toEqual({
-  //     result: false,
-  //     errors: {
-  //       password: 'Password must contain at least 1 symbol'
-  //     },
-  //   });
-  // });
-
-  // test('Return true', async () => {
-  //   const { req, res } = mockRequest({
-  //     method: 'POST',
-  //     body: {
-  //       username: 'abcdfdsafdf',
-  //       password: 'passwordpasswordpassword!1'
-  //     },
-  //   });
-  //   fetchMock.mockResponseOnce(JSON.stringify({result: false}));
-  //   await createNewAccount(req, res);
-  //   expect(res._getStatusCode()).toBe(200);
-  //   expect(res._getJSONData()).toEqual({
-  //     result: true
-  //   });
-  // });
 });
