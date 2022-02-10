@@ -26,121 +26,43 @@ describe('CreateAccount', () => {
     });
   });
 
-  test('validates username that is too short with error message', async() => {
+  test('Creates account successfully', async() => {
     render(<CreateAccount />);
-    const input = screen.getByLabelText('Username');
-    let userErrorMessage = screen.queryByText("Username must be at least 10 characters");
-    expect(userErrorMessage).toBeNull();
-    userEvent.type(input, 'short');
-    userEvent.click(document.body);
-    userErrorMessage = await screen.findByText("Username must be at least 10 characters");
-  })
-
-  test('validates username that is too long with error message', async() => {
-    render(<CreateAccount />);
-    const input = screen.getByLabelText('Username');
-    fireEvent.change(input, {target: {value: 'longusernamelongusernamelongusernamelongusernamelongusername'}});
-
-    const userErrorMessage = await screen.findByText("Username must be at most 50 characters");
-    expect(userErrorMessage).toBeTruthy();
-  })
-
-  xtest('validates username that is the correct length with no error', async() => {
-    render(<CreateAccount />);
-    const input = screen.getByLabelText('Username');
-    act( () => {
-      fireEvent.change(input, {target: {value: 'longusername'}});
-    })
-    let userErrorMessage = screen.queryByText("Username must be at least 10 characters");
-    expect(userErrorMessage).toBeFalsy();
-    userErrorMessage = screen.queryByText("Username must be at most 50 characters");
-    expect(userErrorMessage).toBeFalsy();
-  })
-
-
-  xtest('validates password that is too short with error message', async() => {
-    render(<CreateAccount />);
-    const input = screen.getByLabelText('Password');
+    const username = screen.getByLabelText('Username');
+    const password = screen.getByLabelText('Password');
+    userEvent.type(username, 'workingusername');
     fetchMock.mockResponseOnce(JSON.stringify({result: false}));
-    act( () => {
-      fireEvent.change(input, {target: {value: 'short'}});
-    })
-    const passErrorMessage = await screen.findByText("Password must be at least 20 characters");
-    expect(passErrorMessage).toBeTruthy();
-  })
+    userEvent.type(password, 'workingpasswordworkingpassword1!');
 
-  xtest('validates password that is too long with error message', async() => {
-    render(<CreateAccount />);
-    const input = screen.getByLabelText('Password');
-    fetchMock.mockResponseOnce(JSON.stringify({result: false}));
-    act( () => {
-      fireEvent.change(input, {target: {value: 'longpasswordlongpasswordlongpasswordlongpasswordlongpassword'}});
-    })
-    const passErrorMessage = await screen.findByText("Password must be at most 50 characters");
-    expect(passErrorMessage).toBeTruthy();
-  })
-
-  xtest('validates password that has no letter error message', async() => {
-    render(<CreateAccount />);
-    const input = screen.getByLabelText('Password');
-    fetchMock.mockResponseOnce(JSON.stringify({result: false}));
-    act( () => {
-      fireEvent.change(input, {target: {value: '12345678901234567890121'}});
-    })
-    const passErrorMessage = await screen.findByText('Password must contain at least 1 letter');
-    expect(passErrorMessage).toBeTruthy();
-  })
-
-  xtest('validates password that has no number error message', async() => {
-    render(<CreateAccount />);
-    const input = screen.getByLabelText('Password');
-    fetchMock.mockResponseOnce(JSON.stringify({result: false}));
-    act( () => {
-      fireEvent.change(input, {target: {value: 'longpasswordlongpassword'}});
-    })
-    const passErrorMessage = await screen.findByText('Password must contain at least 1 number');
-    expect(passErrorMessage).toBeTruthy();
-  })
-
-  xtest('validates password that has no symbol error message', async() => {
-    render(<CreateAccount />);
-    const input = screen.getByLabelText('Password');
-    fetchMock.mockResponseOnce(JSON.stringify({result: false}));
-    act( () => {
-      fireEvent.change(input, {target: {value: 'longpasswordlongpassword1'}});
-    })
-    const passErrorMessage = await screen.findByText('Password must contain at least 1 symbol');
-    expect(passErrorMessage).toBeTruthy();
-  })
-
-  xtest('validates password that is breached', async() => {
-    render(<CreateAccount />);
-    const input = screen.getByLabelText('Password');
     fetchMock.mockResponseOnce(JSON.stringify({result: true}));
-    act( () => {
-      fireEvent.change(input, {target: {value: 'weakpass'}});
-    })
-    const passErrorMessage = await screen.findByText('This password has been hacked elsewhere, choose a different one.');
-    expect(passErrorMessage).toBeTruthy();
+    userEvent.click(screen.getByText('Create Account'));
+
+    expect(fetchMock).toBeCalledTimes(2);
+
+    const successMessage = await screen.findByText('Account Created Successfully')
+    expect(successMessage).toBeTruthy();
   })
 
-  xtest('validates password that is the correct length with no error', async() => {
+  test('Fails to create account', async() => {
     render(<CreateAccount />);
-    const input = screen.getByLabelText('Password');
+    const username = screen.getByLabelText('Username');
+    const password = screen.getByLabelText('Password');
+
+    userEvent.type(username, 'a');
+
     fetchMock.mockResponseOnce(JSON.stringify({result: false}));
-    act( () => {
-      fireEvent.change(input, {target: {value: 'longpasswordlongpassword1!'}});
-    })
-    let passErrorMessage = screen.queryByText('Password must be at least 20 characters');
-    expect(passErrorMessage).toBeFalsy();
-    passErrorMessage = screen.queryByText('Password must be at most 50 characters');
-    expect(passErrorMessage).toBeFalsy();
-    passErrorMessage = screen.queryByText('Password must contain at least 1 letter');
-    expect(passErrorMessage).toBeFalsy();
-    passErrorMessage = screen.queryByText('Password must contain at least 1 number');
-    expect(passErrorMessage).toBeFalsy();
-    passErrorMessage = screen.queryByText('Password must contain at least 1 symbol');
-    expect(passErrorMessage).toBeFalsy();
+    userEvent.type(password, 'a');
+
+    fetchMock.mockResponseOnce(JSON.stringify({result: false, errors: {
+      username: 'Username must be at least 10 characters',
+      password: 'Password must be at least 20 characters'
+    }}));
+    userEvent.click(screen.getByText('Create Account'));
+
+    expect(fetchMock).toBeCalledTimes(2);
+
+    const successMessage = await screen.findByText('Submitted invalid username and/or password. Please try again.')
+    expect(successMessage).toBeTruthy();
   })
 
 });
