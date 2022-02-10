@@ -11,9 +11,6 @@ describe('Input', () => {
     userEvent.click(input);
     userEvent.type(input, 'hello');
 
-    //how do i await something that doesn't exist and then validate it doesn't exist??
-    // expect( async () => { await screen.findByText('blur error') }).toThrow();
-
     expect(screen.queryByText('blur error')).toBeNull();
     userEvent.click(document.body);
     await screen.findByText('blur error');
@@ -28,7 +25,7 @@ describe('Input', () => {
     const input = screen.getByLabelText('Username');
     userEvent.click(input);
     userEvent.type(input, 'bee');
-    // expect( await screen.findByText('on change works')).toThrow();
+
     expect(screen.queryByText('on change works')).toBeNull();
 
     userEvent.click(document.body);
