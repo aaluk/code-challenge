@@ -34,7 +34,10 @@ export default function CreateAccount() {
         })
       }
     } catch (e) {
-      throw (e);
+      setMessage({
+        message: 'There was an error. Please try again',
+        success: false
+      })
     }
   }
   return (
